@@ -11,16 +11,26 @@ df = pd.read_csv(
 
 #remove cols that contain only 0 (784col->668col)
 train_img=df.loc[:, (df != 0).any(axis=0)]
-#print(train_img)
+
+#replace all nonzeros with 1 to normalize data
+train_img=np.where(train_img!=0, 1, train_img) 
+
+print(train_img)
+
+# a_file = open("output.txt", "w")
+
+
+# np.savetxt("output.txt", train_img,fmt='%i')
+# a_file.close()
+
 
 scaler = StandardScaler()
 
 #we need to standardize the data
-train_img=scaler.fit_transform(train_img)
-#train_img = scaler.transform(train_img )
+# train_img=scaler.fit_transform(train_img)
 
 #get the PCA dim. reduction library and fit it onto standardize data
-#we reduce 600 something cols into 4 cols
+#we reduce 600 something cols into __ cols
 pca = PCA(.95)
 
 #fit it onto our data, p is our new data set w 4 cols
@@ -28,19 +38,24 @@ pca = PCA(.95)
 #p=pca.fit_transform(train_img)
 p=pca.fit_transform(train_img)
 
-print(p)
+# print(p)
 
-kmeans = KMeans(n_clusters=10)
+kmeans = KMeans(init = "k-means++",n_clusters=10,n_init = 35)
 #k=kmeans.fit(p)
-identified_clusters = kmeans.fit_predict(p)
+identified_clusters = kmeans.fit(p)
 
-print(identified_clusters)
+data_labels = kmeans.labels_
+
+# print(type(data_labels))
+
 
 
 a_file = open("output.txt", "w")
 
-# for row in identified_clusters:
-    # np.savetxt(a_file, row)
+# # for row in identified_clusters:
+#     # np.savetxt(a_file, row)
 
-np.savetxt("output.txt", identified_clusters,fmt='%i')
-# a_file.close()
+
+
+np.savetxt("output.txt", data_labels,fmt='%i')
+a_file.close()
